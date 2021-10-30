@@ -386,8 +386,8 @@ export const paidEnrolment = async (req, res) => {
     if (!course.paid) {
       return;
     }
-    // Charge Kengram platform fee - 30%
-    const fee = (course.price * 30) / 100;
+    // Charge Kengram platform fee - 100%
+    const fee = course.price;
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -403,9 +403,6 @@ export const paidEnrolment = async (req, res) => {
       // Charge buyer and transfer remaining balance to seller (after fee)
       payment_intent_data: {
         application_fee_amount: Math.round(fee.toFixed(2) * 100),
-        transfer_data: {
-          destination: course.instructor.stripe_account_id,
-        },
       },
       // Redirect URL after successful payment
       success_url: `${process.env.STRIPE_SUCCESS_URL}/${course._id}`,
